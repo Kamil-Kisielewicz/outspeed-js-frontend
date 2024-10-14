@@ -29,6 +29,7 @@ class VoiceBot:
         await self.rt_node.close()
 
 
+
 if __name__ == "__main__":
     # Start the VoiceBot when the script is run directly
     VoiceBot().start()

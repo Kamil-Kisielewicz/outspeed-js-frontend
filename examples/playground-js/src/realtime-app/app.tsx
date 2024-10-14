@@ -1,11 +1,15 @@
 import React from "react";
 import { useWebRTC, RealtimeVideo, RealtimeAudio, useRealtimeToast } from "@outspeed/react";
+import {createConfig} from "@outspeed/core";
 import {PythonIDE} from '../components/PythonIDE.jsx';
 import { TRealtimeAppContext } from "./types";
 import { AudioVisualizerContainer } from "../components/meeting-layout/audio-visualzier-container.js";
 
 export default function App() {
   const { toast } = useRealtimeToast();
+  const config = createConfig({
+    functionURL: "https://infra.outspeed.com/run/1bda76675d2fc1f66ca1177c76ddbd89",
+  })
   const { 
     connect,
     connectionStatus,
@@ -17,11 +21,15 @@ export default function App() {
     } = useWebRTC({
       config: {
         // Add your function URL.
-        functionURL: "https://infra.outspeed.com/run/5fdc4235e569724e796e78f0331b08df", 
+        ...config, 
         audio: true,
         video: false,
       },
     });
+
+  React.useEffect(() => {
+    getLocalAudioTrack()
+  }, []);
 
   React.useEffect(() => {
     switch (connectionStatus) {
@@ -51,12 +59,12 @@ export default function App() {
         <RealtimeAudio track={getRemoteAudioTrack()} />
       }
       {getRemoteAudioTrack() && 
-              <AudioVisualizerContainer
-                track={getRemoteAudioTrack()}
-                label="Outspeed"
-                hasControls
-                threshold={120}
-              />
+        <AudioVisualizerContainer
+          track={getRemoteAudioTrack()}
+          label="Outspeed"
+          hasControls
+          threshold={120}
+        />
       }
       {/* {!getRemoteVideoTrack() && (
         <>
