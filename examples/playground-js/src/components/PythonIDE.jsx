@@ -3,7 +3,8 @@ import { useState, useRef, useEffect } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
-export function PythonIDE() {
+export function PythonIDE(props) {
+    const {dataChannel} = props;
     const [code, setCode] = useState('# Write your Python code here\nprint("Hello, World!")')
     const [output, setOutput] = useState('')
     const editorRef = useRef(null)
@@ -29,6 +30,13 @@ export function PythonIDE() {
     const handleRunCode = () => {
       // In a real application, this would send the code to a backend for execution
       // Here, we'll just simulate some output
+      
+      
+      // TODO dataChannel stuff
+      dataChannel.send(`Please evaluate the candidate's code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`)
+
+      // TODO call the execution api
+      
       setOutput(`Executing code...\n\n${code}\n\nOutput:\nHello, World!\n\nExecution completed.`)
     }
   

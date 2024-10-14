@@ -1,5 +1,7 @@
 import React from "react";
+import {Mic, MicOff} from "lucide-react";
 import { useWebRTC, RealtimeVideo, RealtimeAudio, useRealtimeToast } from "@outspeed/react";
+import {MediaAction} from '../components/meeting-layout/media-action.tsx';
 import {createConfig} from "@outspeed/core";
 import {PythonIDE} from '../components/PythonIDE.jsx';
 import { TRealtimeAppContext } from "./types";
@@ -54,17 +56,10 @@ export default function App() {
 
   return (
     <div>
-      <PythonIDE/>
+      <MediaAction track={getLocalAudioTrack()} On={Mic} Off={MicOff}/>
+      <PythonIDE dataChannel={dataChannel}/>
       {getRemoteAudioTrack() && 
         <RealtimeAudio track={getRemoteAudioTrack()} />
-      }
-      {getRemoteAudioTrack() && 
-        <AudioVisualizerContainer
-          track={getRemoteAudioTrack()}
-          label="Outspeed"
-          hasControls
-          threshold={120}
-        />
       }
       {/* {!getRemoteVideoTrack() && (
         <>
