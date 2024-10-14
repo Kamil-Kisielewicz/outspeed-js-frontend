@@ -27,17 +27,51 @@ export function PythonIDE(props) {
       }
     }
   
+    const executeCode = async () => {
+      // if (!code) {
+      //   alert("Please provide code to execute.");
+      //   return;
+      // }
+  
+      // setLoading(true); // Set loading state while waiting for the API response
+  
+      try {
+        // Now the fetch request can use await
+        const response = await fetch("http://127.0.0.1:5000/execute", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "no-cors"
+          },
+          body: JSON.stringify({ code: code }), // Sending the code to Flask API
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to execute code.");
+        }
+  
+        const data = await response.json();
+        setOutput(data.output); // Set the output from the API
+      } catch (error) {
+        console.error("Error executing code:", error);
+        setOutput("Error executing code.");
+      } finally {
+        setLoading(false); // Reset loading state
+      }
+    };
+  
+
     const handleRunCode = () => {
       // In a real application, this would send the code to a backend for execution
       // Here, we'll just simulate some output
-      
-      
+
       // TODO dataChannel stuff
       dataChannel.send(`Please evaluate the candidate's code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`)
 
       // TODO call the execution api
+      executeCode();
       
-      setOutput(`Executing code...\n\n${code}\n\nOutput:\nHello, World!\n\nExecution completed.`)
+      setOutput(`Output:\n${output}\nExecution completed.`)
     }
   
     return (
