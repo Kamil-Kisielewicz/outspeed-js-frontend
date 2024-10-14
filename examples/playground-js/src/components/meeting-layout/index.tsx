@@ -28,7 +28,7 @@ export function MeetingLayout(props: TMeetingLayoutProps) {
     remoteAudioTrack,
     remoteTrack,
     onCallEndClick,
-    dataChannel,
+    dataChannel, //.send(); on backend the text stream is where it's all coming; send to LLM or whatever
     title,
   } = props;
 

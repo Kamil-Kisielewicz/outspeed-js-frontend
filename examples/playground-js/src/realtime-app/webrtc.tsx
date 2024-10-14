@@ -20,7 +20,7 @@ export function WebRTCRealtimeApp() {
     getLocalAudioTrack,
     getRemoteVideoTrack,
     getLocalVideoTrack,
-    dataChannel,
+    dataChannel, // use to send and receive text
   } = useWebRTC({ config: { ...config, logger: ConsoleLogger.getLogger() } });
 
   React.useEffect(() => {

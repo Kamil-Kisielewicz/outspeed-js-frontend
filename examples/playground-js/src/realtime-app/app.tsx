@@ -1,153 +1,76 @@
 import React from "react";
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import { useState, useRef, useEffect } from 'react'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { useWebRTC, RealtimeVideo } from "@outspeed/react";
-
-export function PythonIDE() {
-  const [code, setCode] = useState('# Write your Python code here\nprint("Hello, World!")')
-  const [output, setOutput] = useState('')
-  const editorRef = useRef(null)
-
-  useEffect(() => {
-    if (editorRef.current) {
-      editorRef.current.textContent = code
-    }
-  }, [])
-
-  const handleCodeChange = (event) => {
-    const newCode = event.target.innerText
-    setCode(newCode)
-  }
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Tab') {
-      event.preventDefault()
-      document.execCommand('insertText', false, '    ')
-    }
-  }
-
-  const handleRunCode = () => {
-    // In a real application, this would send the code to a backend for execution
-    // Here, we'll just simulate some output
-    setOutput(`Executing code...\n\n${code}\n\nOutput:\nHello, World!\n\nExecution completed.`)
-  }
-
-  return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#F7FAFC', padding: '16px' }}>
-      {/* Left side - Code Editor with Syntax Highlighting */}
-      <div style={{ width: '50%', paddingRight: '8px', position: 'relative' }}>
-        <div style={{ width: '100%', height: '100%', overflow: 'auto', borderRadius: '8px', position: 'relative' }}>
-          <SyntaxHighlighter
-            language="python"
-            style={vscDarkPlus}
-            customStyle={{
-              margin: 0,
-              padding: '16px',
-              height: '100%',
-              fontSize: '14px',
-              lineHeight: '1.25rem',
-            }}
-            wrapLines={true}
-            wrapLongLines={true}
-          >
-            {code}
-          </SyntaxHighlighter>
-          <div
-            ref={editorRef}
-            contentEditable
-            onInput={handleCodeChange}
-            onKeyDown={handleKeyDown}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              padding: '16px',
-              fontFamily: 'monospace',
-              fontSize: '14px',
-              color: 'transparent',
-              caretColor: 'white',
-              outline: 'none',
-              whiteSpace: 'pre-wrap',
-              overflowWrap: 'break-word',
-              lineHeight: '1.25rem',
-              zIndex: 1,
-              backgroundColor: 'transparent',
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Right side - Terminal and Run Button */}
-      <div style={{ width: '50%', paddingLeft: '8px', display: 'flex', flexDirection: 'column' }}>
-        <button
-          style={{
-            marginBottom: '8px',
-            backgroundColor: '#38A169',
-            hover: { backgroundColor: '#2F855A' },
-            color: 'white',
-            fontWeight: 'bold',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-          onClick={handleRunCode}
-        >
-          Run Code
-        </button>
-        <textarea
-          style={{
-            flexGrow: 1,
-            width: '100%',
-            padding: '16px',
-            fontFamily: 'monospace',
-            fontSize: '14px',
-            backgroundColor: '#000000',
-            color: '#38A169',
-            borderRadius: '8px',
-            resize: 'none',
-            outline: 'none',
-            boxSizing: 'border-box',
-          }}
-          value={output}
-          readOnly
-          placeholder="Output will appear here..."
-        />
-      </div>
-    </div>
-  )
-}
+import { useWebRTC, RealtimeVideo, RealtimeAudio, useRealtimeToast } from "@outspeed/react";
+import {PythonIDE} from '../components/PythonIDE.jsx';
+import { TRealtimeAppContext } from "./types";
+import { AudioVisualizerContainer } from "../components/meeting-layout/audio-visualzier-container.js";
 
 export default function App() {
+  const { toast } = useRealtimeToast();
   const { 
     connect,
     connectionStatus,
+    getRemoteAudioTrack,
+    getLocalAudioTrack,
     getRemoteVideoTrack,
-    getLocalVideoTrack
+    getLocalVideoTrack,
+    dataChannel, // use to send and receive text
     } = useWebRTC({
       config: {
         // Add your function URL.
-        functionURL: "http://0.0.0.0:8080/", 
+        functionURL: "https://infra.outspeed.com/run/5fdc4235e569724e796e78f0331b08df", 
         audio: true,
         video: false,
       },
     });
 
+  React.useEffect(() => {
+    switch (connectionStatus) {
+      case "SetupCompleted":
+        connect();
+        break;
+      case "Disconnected":
+        break;
+    }
+
+    if (connectionStatus === "Failed") {
+      toast({
+        title: "Connection Status",
+        description: "Failed to connect.",
+        variant: "destructive",
+      });
+    }
+  }, [connectionStatus, connect]);
+
+    // conditional rendering on connectionStatus
+    // realtimeAudio
+
   return (
     <div>
+      <PythonIDE/>
+      {getRemoteAudioTrack() && 
+        <RealtimeAudio track={getRemoteAudioTrack()} />
+      }
+      {getRemoteAudioTrack() && 
+              <AudioVisualizerContainer
+                track={getRemoteAudioTrack()}
+                label="Outspeed"
+                hasControls
+                threshold={120}
+              />
+      }
+      {/* {!getRemoteVideoTrack() && (
+        <>
+          <RealtimeAudio track={getRemoteAudioTrack()} />
+        </>
+      )}
       <span>Connection Status: {connectionStatus}</span>
       {connectionStatus === "SetupCompleted" && (
         <button onClick={connect}>Connect</button>
       )}
       {/* To show remote video stream */}
-      <RealtimeVideo track={getRemoteVideoTrack()} />
+      {/* <RealtimeVideo track={getRemoteVideoTrack()} /> */}
       {/* To show local video stream */}
-      <RealtimeVideo track={getLocalVideoTrack()} />
+      {/* <RealtimeVideo track={getLocalVideoTrack()} /> */}
     </div>
   );
 }
