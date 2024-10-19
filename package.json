@@ -15,5 +15,8 @@
     "@changesets/cli": "^2.27.9",
     "concurrently": "^9.0.1"
   },
-  "homepage": "https://outspeed.com"
+  "homepage": "https://outspeed.com",
+  "dependencies": {
+    "prismjs": "^1.29.0"
+  }
 }

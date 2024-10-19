@@ -10,7 +10,7 @@ import { AudioVisualizerContainer } from "../components/meeting-layout/audio-vis
 export default function App() {
   const { toast } = useRealtimeToast();
   const config = createConfig({
-    functionURL: "https://infra.outspeed.com/run/1bda76675d2fc1f66ca1177c76ddbd89",
+    functionURL: "http://0.0.0.0:8081",
   })
   const { 
     connect,
