@@ -3,7 +3,7 @@ import { Mic, MicOff } from "lucide-react";
 import { useWebRTC, RealtimeVideo, RealtimeAudio, useRealtimeToast } from "@outspeed/react";
 import { MediaAction } from '../components/meeting-layout/media-action.tsx';
 import { createConfig } from "@outspeed/core";
-import { PythonIDE } from '../components/PythonIDE.jsx';
+import { CodeIDE } from '../components/PythonIDE.jsx';
 import { Modal } from '../components/Modal.jsx'; // Import the new Modal component
 
 export default function App() {
@@ -71,7 +71,7 @@ export default function App() {
   return (
     <div>
       <MediaAction track={getLocalAudioTrack()} On={Mic} Off={MicOff}/>
-      <PythonIDE dataChannel={dataChannel}/>
+      <CodeIDE dataChannel={dataChannel}/>
       {getRemoteAudioTrack() && 
         <RealtimeAudio track={getRemoteAudioTrack()} />
       }
