@@ -12,11 +12,16 @@ export function CodeIDE(props) {
   const textareaRef = useRef(null);
   const lineNumbersRef = useRef(null);
   const editorWrapperRef = useRef(null);
+  const [scrollTop, setScrollTop] = useState(0);
 
   useEffect(() => {
     highlightCode();
     updateLineNumbers();
   }, [code, language]);
+
+  useEffect(() => {
+    syncScroll();
+  }, [scrollTop]);
 
   const highlightCode = () => {
     if (editorRef.current) {
@@ -26,15 +31,36 @@ export function CodeIDE(props) {
 
   const updateLineNumbers = () => {
     if (lineNumbersRef.current) {
-      const lineCount = code.split('\n').length;
-      const lineNumbers = Array.from({ length: lineCount }, (_, i) => `${i + 1}`).join('\n');
-      lineNumbersRef.current.innerHTML = lineNumbers;
+      const lines = code.split('\n');
+      const lineNumbers = Array.from({ length: lines.length }, (_, i) => `${i + 1}`);
+      lineNumbersRef.current.innerHTML = lineNumbers.join('<br/>');
     }
+  };
+
+  const syncScroll = () => {
+    if (editorRef.current) {
+      editorRef.current.scrollTop = scrollTop;
+    }
+    if (lineNumbersRef.current) {
+      lineNumbersRef.current.style.transform = `translateY(-${scrollTop}px)`;
+    }
+  };
+
+  const handleScroll = (event) => {
+    setScrollTop(event.target.scrollTop);
   };
 
   const handleCodeChange = (event) => {
     const newCode = event.target.value;
+    const cursorPos = event.target.selectionStart;
     setCode(newCode);
+    
+    requestAnimationFrame(() => {
+      if (textareaRef.current) {
+        textareaRef.current.selectionStart = cursorPos;
+        textareaRef.current.selectionEnd = cursorPos;
+      }
+    });
   };
 
   const handleKeyDown = (event) => {
@@ -44,18 +70,16 @@ export function CodeIDE(props) {
       const end = event.target.selectionEnd;
       const newCode = code.substring(0, start) + '    ' + code.substring(end);
       setCode(newCode);
-      event.target.setSelectionRange(start + 4, start + 4);
+      
+      requestAnimationFrame(() => {
+        if (textareaRef.current) {
+          textareaRef.current.selectionStart = start + 4;
+          textareaRef.current.selectionEnd = start + 4;
+        }
+      });
     }
   };
 
-  const handleScroll = (event) => {
-    if (lineNumbersRef.current && editorRef.current) {
-      lineNumbersRef.current.scrollTop = event.target.scrollTop;
-      editorRef.current.scrollTop = event.target.scrollTop;
-    }
-  };
-
-  
   const executeCode = async () => {
     try {
       const response = await fetch("http://127.0.0.1:5000/execute", {
@@ -90,7 +114,6 @@ export function CodeIDE(props) {
 
   return (
     <div style={{ display: 'flex', height: '100vh', backgroundColor: '#F7FAFC', padding: '16px' }}>
-      {/* Left side - Code Editor with Syntax Highlighting and Line Numbers */}
       <div style={{ width: '50%', paddingRight: '8px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
         <div ref={editorWrapperRef} style={{ display: 'flex', flexGrow: 1, overflow: 'hidden', borderRadius: '8px' }}>
           <div style={{
@@ -106,14 +129,21 @@ export function CodeIDE(props) {
             lineHeight: '1.5',
             color: '#858585',
             userSelect: 'none',
+            position: 'relative',
             overflow: 'hidden',
           }}>
-            <pre ref={lineNumbersRef} style={{ 
-              margin: 0, 
-              height: '100%', 
-              overflow: 'hidden',
-              whiteSpace: 'pre-line'
-            }}></pre>
+            <div
+              ref={lineNumbersRef}
+              style={{ 
+                position: 'absolute',
+                top: '16px',
+                right: '8px',
+                left: '0',
+                textAlign: 'right',
+                pointerEvents: 'none',
+                transformOrigin: '50% 0',
+              }}
+            />
           </div>
           <div style={{ flexGrow: 1, position: 'relative', overflow: 'hidden' }}>
             <textarea
@@ -122,6 +152,7 @@ export function CodeIDE(props) {
               onChange={handleCodeChange}
               onKeyDown={handleKeyDown}
               onScroll={handleScroll}
+              spellCheck="false"
               style={{
                 width: '100%',
                 height: '100%',
@@ -144,6 +175,7 @@ export function CodeIDE(props) {
                 left: 0,
                 zIndex: 1,
                 boxSizing: 'border-box',
+                overflow: 'auto',
               }}
             />
             <pre
@@ -191,7 +223,6 @@ export function CodeIDE(props) {
           <option value="typescript" disabled title="Coming soon!">TypeScript</option>
         </select>
       </div>
-      {/* Right side - Terminal and Run Button */}
       <div style={{ width: '50%', paddingLeft: '8px', display: 'flex', flexDirection: 'column' }}>
         <button
           style={{
@@ -230,3 +261,5 @@ export function CodeIDE(props) {
     </div>
   );
 }
+
+export default CodeIDE;
