@@ -4,7 +4,7 @@ import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-tomorrow.css';
 
 export function CodeIDE(props) {
-  const { dataChannel } = props;
+  const { dataChannel, setHasEnded, setScore, setFeedback } = props;
   const [code, setCode] = useState('# Write your Python code here\nprint("Hello, World!")');
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState('python');
