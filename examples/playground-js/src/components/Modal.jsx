@@ -15,15 +15,14 @@ const BaseModal = ({ isOpen, children }) => {
 };
 
 // Setup Modal Component
-export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficulty, setDifficulty }) => {
-  const [isLoading, setIsLoading] = useState(false);
+export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficulty, setDifficulty, isSetupModalLoading, setIsSetupModalLoading }) => {
 
   const handleStart = async () => {
-    setIsLoading(true);
+    setIsSetupModalLoading(true);
     try {
       await onStart(time, difficulty);
       if (hasStarted) {
-        setIsLoading(false);
+        setIsSetupModalLoading(false);
       }
     } catch (error) {
       console.error('Error starting interview:', error);
@@ -48,7 +47,7 @@ export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficu
               value={time}
               onChange={(e) => setTime(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              disabled={isLoading}
+              disabled={isSetupModalLoading}
             >
               <option value="10 minutes">10 minutes</option>
               <option value="30 minutes">30 minutes</option>
@@ -64,7 +63,7 @@ export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficu
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              disabled={isLoading}
+              disabled={isSetupModalLoading}
             >
               <option value="Easy">Easy</option>
               <option value="Medium">Medium</option>
@@ -76,17 +75,17 @@ export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficu
 
         <button
           onClick={handleStart}
-          disabled={isLoading}
+          disabled={isSetupModalLoading}
           className={`
             w-full p-4 rounded-lg font-medium text-white
             flex items-center justify-center gap-2
             transition-colors
-            ${isLoading 
+            ${isSetupModalLoading 
               ? 'bg-blue-400 cursor-not-allowed' 
               : 'bg-blue-600 hover:bg-blue-700'}
           `}
         >
-          {isLoading ? (
+          {isSetupModalLoading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
               Initializing Interview...
@@ -96,7 +95,7 @@ export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficu
           )}
         </button>
             
-        {isLoading && (
+        {isSetupModalLoading && (
           <p className="text-sm text-gray-600 text-center">
             Please wait while we set up your interview session...
           </p>

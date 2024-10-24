@@ -14,6 +14,7 @@ export default function App() {
   const [difficulty, setDifficulty] = useState('Easy');
   const [score, setScore] = useState(90); // should be -1
   const [feedback, setFeedback] = useState('Great interviewee!'); // should be ''
+  const [isSetupModalLoading, setIsSetupModalLoading] = useState(false);
 
   const { toast } = useRealtimeToast();
   const config = createConfig({
@@ -58,11 +59,31 @@ export default function App() {
     }
   }, [connectionStatus, connect]);
 
-  const handleStart = () => {
-    // if (connectionStatus === "SetupCompleted"){
-      console.log(`Starting session with time: ${time} and difficulty: ${difficulty}`);
-      setIsModalOpen(false);
-      setHasStarted(true);
+  const handleStart = async () => {
+    // if (connectionStatus === "SetupCompleted"){ // TODO uncomment this; it's commented because kamil's local is cooked
+      try {
+        const response = await fetch("http://127.0.0.1:5000/start-interview", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "no-cors"
+          },
+          body: JSON.stringify({ }),
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to execute code.");
+        }
+  
+        const data = await response.json();
+        console.log(`Starting session with time: ${time} and difficulty: ${difficulty}`);
+        setIsModalOpen(false);
+        setHasStarted(true);
+      } catch (error) {
+        console.error("Couldn't start interview:", error);
+        setIsSetupModalLoading(false);
+        // setOutput("Couldn't start interview.");
+      }
     // }
   };
 
@@ -76,6 +97,8 @@ export default function App() {
         setTime={setTime}
         difficulty={difficulty}
         setDifficulty={setDifficulty}
+        isSetupModalLoading={isSetupModalLoading}
+        setIsSetupModalLoading={setIsSetupModalLoading}
       />
     );
   }
