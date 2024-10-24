@@ -4,11 +4,17 @@ import { useWebRTC, RealtimeVideo, RealtimeAudio, useRealtimeToast } from "@outs
 import { MediaAction } from '../components/meeting-layout/media-action.tsx';
 import { createConfig } from "@outspeed/core";
 import { CodeIDE } from '../components/PythonIDE.jsx';
-import { Modal } from '../components/Modal.jsx'; // Import the new Modal component
+import { SetupModal, ScorecardModal } from '../components/Modal.jsx'; // Import the new Modal component
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
+  const [hasEnded, setHasEnded] = useState(false);
+  const [time, setTime] = useState('10 minutes');
+  const [difficulty, setDifficulty] = useState('Easy');
+  const [score, setScore] = useState(90); // should be -1
+  const [feedback, setFeedback] = useState('Great interviewee!'); // should be ''
+
   const { toast } = useRealtimeToast();
   const config = createConfig({
     functionURL: "http://0.0.0.0:8081",
@@ -52,30 +58,44 @@ export default function App() {
     }
   }, [connectionStatus, connect]);
 
-  const handleStart = (time, difficulty) => {
-    console.log(`Starting session with time: ${time} and difficulty: ${difficulty}`);
-    setIsModalOpen(false);
-    setHasStarted(true);
-    // Add any additional logic you need when starting the session
+  const handleStart = () => {
+    // if (connectionStatus === "SetupCompleted"){
+      console.log(`Starting session with time: ${time} and difficulty: ${difficulty}`);
+      setIsModalOpen(false);
+      setHasStarted(true);
+    // }
   };
 
   if (!hasStarted) {
     return (
-      <Modal
+      <SetupModal
         isOpen={isModalOpen}
         onStart={handleStart}
+        hasStarted={hasStarted}
+        time={time}
+        setTime={setTime}
+        difficulty={difficulty}
+        setDifficulty={setDifficulty}
       />
     );
   }
 
   return (
     <div>
-      <MediaAction track={getLocalAudioTrack()} On={Mic} Off={MicOff}/>
-      <CodeIDE dataChannel={dataChannel}/>
-      {getRemoteAudioTrack() && 
-        <RealtimeAudio track={getRemoteAudioTrack()} />
+      {
+        hasEnded ? 
+        <div>
+          <MediaAction track={getLocalAudioTrack()} On={Mic} Off={MicOff}/>
+          <CodeIDE dataChannel={dataChannel} setHasEnded={setHasEnded} timeLimit={time} setScore={setScore} setFeedback={setFeedback}/>
+          {getRemoteAudioTrack() && 
+            <RealtimeAudio track={getRemoteAudioTrack()} />
+          }
+        </div>
+        : 
+        <div>
+          <ScorecardModal isOpen={score >= 0.0 && feedback} score={score} feedback={feedback}/>
+        </div>
       }
-      {/* Rest of your existing component code */}
     </div>
   );
 }

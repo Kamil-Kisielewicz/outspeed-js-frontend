@@ -1,49 +1,163 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
-export const Modal = ({ isOpen, onStart }) => {
-  const [time, setTime] = useState('10 minutes');
-  const [difficulty, setDifficulty] = useState('easy');
-
+// Base Modal Component for shared styling and structure
+const BaseModal = ({ isOpen, children }) => {
   if (!isOpen) return null;
-
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Welcome to your coding interview.</h2>
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Time Limit</label>
-          <select
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className="w-full p-2 border rounded"
-          >
-            <option value="10 minutes">10 minutes</option>
-            <option value="30 minutes">30 minutes</option>
-            <option value="45 minutes">45 minutes</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Problem Difficulty</label>
-          <select
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}
-            className="w-full p-2 border rounded"
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-        </div>
-        <button
-          onClick={() => onStart(time, difficulty)}
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Start
-        </button>
+      <div className="bg-white p-8 rounded-xl shadow-xl w-[480px] max-w-[90vw]">
+        {children}
       </div>
     </div>
   );
 };
+
+// Setup Modal Component
+export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficulty, setDifficulty }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleStart = async () => {
+    setIsLoading(true);
+    try {
+      await onStart(time, difficulty);
+      if (hasStarted) {
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error starting interview:', error);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <BaseModal isOpen={isOpen}>
+      <div className="flex flex-col gap-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Welcome to your coding interview</h2>
+          <p className="mt-2 text-gray-600">Select your preferences to begin the interview.</p>
+        </div>
+      
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Time Limit
+            </label>
+            <select
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              disabled={isLoading}
+            >
+              <option value="10 minutes">10 minutes</option>
+              <option value="30 minutes">30 minutes</option>
+              <option value="45 minutes">45 minutes</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Problem Difficulty
+            </label>
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              disabled={isLoading}
+            >
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+              <option value="Random">Random</option>
+            </select>
+          </div>
+        </div>
+
+        <button
+          onClick={handleStart}
+          disabled={isLoading}
+          className={`
+            w-full p-4 rounded-lg font-medium text-white
+            flex items-center justify-center gap-2
+            transition-colors
+            ${isLoading 
+              ? 'bg-blue-400 cursor-not-allowed' 
+              : 'bg-blue-600 hover:bg-blue-700'}
+          `}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Initializing Interview...
+            </>
+          ) : (
+            'Start Interview'
+          )}
+        </button>
+            
+        {isLoading && (
+          <p className="text-sm text-gray-600 text-center">
+            Please wait while we set up your interview session...
+          </p>
+        )}
+      </div>
+    </BaseModal>
+  );
+};
+
+// Scorecard Modal Component
+export const ScorecardModal = ({ isOpen, score, feedback, onClose }) => {
+  const scoreColors = {
+    'Strong Hire': 'text-green-600',
+    'Hire': 'text-blue-600',
+    'No Hire': 'text-orange-600',
+    'Strong No Hire': 'text-red-600'
+  };
+
+  const convertScore = (score) => {
+    if (score >= 90.0) {
+      return 'Strong Hire';
+    }
+    else if (70.0 <= score < 90.0) {
+      return 'Hire';
+    }
+    else if (30.0 <= score < 70.0) {
+      return 'No Hire';
+    }
+    else {
+      return 'Strong No Hire';
+    }
+  };
+
+  return (
+    <BaseModal isOpen={isOpen}>
+      <div className="flex flex-col gap-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Interview Feedback</h2>
+          <div className={`mt-6 text-4xl font-bold ${scoreColors[convertScore(score)]} text-center`}>
+            {convertScore(score)}
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900">Interviewer Notes</h3>
+          <div className="prose max-w-none">
+            <p className="text-gray-600 whitespace-pre-wrap">
+              {feedback}
+            </p>
+          </div>
+        </div>
+
+        {/* <button
+          onClick={onClose}
+          className="w-full p-4 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+        >
+          Close
+        </button> */}
+      </div>
+    </BaseModal>
+  );
+};
+
+export default { SetupModal, ScorecardModal };
