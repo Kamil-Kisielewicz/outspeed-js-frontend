@@ -9,7 +9,7 @@ import { SetupModal, ScorecardModal } from '../components/Modal.jsx'; // Import 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
-  const [hasEnded, setHasEnded] = useState(false);
+  const [hasEnded, setHasEnded] = useState(true);
   const [time, setTime] = useState('10 minutes');
   const [difficulty, setDifficulty] = useState('Easy');
   const [score, setScore] = useState(90); // should be -1
@@ -77,14 +77,17 @@ export default function App() {
   
         const data = await response.json();
         console.log(`Starting session with time: ${time} and difficulty: ${difficulty}`);
-        setIsModalOpen(false);
-        setHasStarted(true);
+        // TODO THIS IS WHERE THE MODAL AND HAS STARTED SHOULD ACTUALLY GET SET
+        // setIsModalOpen(false);
+        // setHasStarted(true);
       } catch (error) {
         console.error("Couldn't start interview:", error);
         setIsSetupModalLoading(false);
         // setOutput("Couldn't start interview.");
       }
     // }
+    setIsModalOpen(false);
+    setHasStarted(true);
   };
 
   if (!hasStarted) {
@@ -108,16 +111,16 @@ export default function App() {
       {
         hasEnded ? 
         <div>
-          <MediaAction track={getLocalAudioTrack()} On={Mic} Off={MicOff}/>
-          <CodeIDE dataChannel={dataChannel} setHasEnded={setHasEnded} timeLimit={time} setScore={setScore} setFeedback={setFeedback}/>
-          {getRemoteAudioTrack() && 
-            <RealtimeAudio track={getRemoteAudioTrack()} />
-          }
+          <ScorecardModal isOpen={score >= 0.0 && feedback} score={score} feedback={feedback}/>
         </div>
         : 
         <div>
-          <ScorecardModal isOpen={score >= 0.0 && feedback} score={score} feedback={feedback}/>
-        </div>
+        <MediaAction track={getLocalAudioTrack()} On={Mic} Off={MicOff}/>
+        <CodeIDE dataChannel={dataChannel} setHasEnded={setHasEnded} timeLimit={time} setScore={setScore} setFeedback={setFeedback}/>
+        {getRemoteAudioTrack() && 
+          <RealtimeAudio track={getRemoteAudioTrack()} />
+        }
+      </div>
       }
     </div>
   );
