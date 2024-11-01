@@ -105,57 +105,113 @@ export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficu
   );
 };
 
-// Scorecard Modal Component
-export const ScorecardModal = ({ isOpen, score, feedback, onClose }) => {
-  const scoreColors = {
-    'Strong Hire': 'text-green-600',
-    'Hire': 'text-blue-600',
-    'No Hire': 'text-orange-600',
-    'Strong No Hire': 'text-red-600'
-  };
-
-  const convertScore = (score) => {
-    if (score >= 90.0) {
-      return 'Strong Hire';
-    }
-    else if (70.0 <= score < 90.0) {
-      return 'Hire';
-    }
-    else if (30.0 <= score < 70.0) {
-      return 'No Hire';
-    }
-    else {
-      return 'Strong No Hire';
-    }
+export const ScoreSlider = ({ score, label, feedback = null }) => {
+  // Calculate gradient color based on score
+  const getColor = (score) => {
+    if (score >= 90) return '#22c55e'; // green-500
+    if (score >= 70) return '#3b82f6'; // blue-500
+    if (score >= 50) return '#f59e0b'; // amber-500
+    return '#ef4444'; // red-500
   };
 
   return (
-    <BaseModal isOpen={isOpen}>
-      <div className="flex flex-col gap-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Interview Feedback</h2>
-          <div className={`mt-6 text-4xl font-bold ${scoreColors[convertScore(score)]} text-center`}>
-            {convertScore(score)}
-          </div>
-        </div>
-
-        <div className="mt-4 space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Interviewer Notes</h3>
-          <div className="prose max-w-none">
-            <p className="text-gray-600 whitespace-pre-wrap">
-              {feedback}
-            </p>
-          </div>
-        </div>
-
-        {/* <button
-          onClick={onClose}
-          className="w-full p-4 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-        >
-          Close
-        </button> */}
+    <div className="mb-6">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-sm font-medium text-gray-700">{label}</span>
+        <span className="text-lg font-bold" style={{ color: getColor(score) }}>
+          {score}/100
+        </span>
       </div>
-    </BaseModal>
+      <div className="h-4 w-full bg-gray-200 rounded-full overflow-hidden relative">
+        <div 
+          className="h-full rounded-full transition-all duration-500"
+          style={{
+            width: `${score}%`,
+            background: `linear-gradient(to right, #ef4444 0%, #f59e0b 50%, #22c55e 100%)`,
+            clipPath: `polygon(0 0, ${score}% 0, ${score}% 100%, 0 100%)`
+          }}
+        />
+      </div>
+      {feedback && (
+        <div className="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+          {feedback}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const ScorecardModal = ({ 
+  isOpen, 
+  scores = {
+    speed: { score: 85, feedback: "Excellent pace throughout the interview. Completed all tasks within time constraints." },
+    accuracy: { score: 78, feedback: "Good attention to detail with minor oversights in edge cases." },
+    problemSolving: { score: 92, feedback: "Outstanding analytical skills and systematic approach to breaking down problems." },
+    communication: { score: 88, feedback: "Clear articulation of thought process and good engagement throughout." },
+    aggregateScore: 86,
+    hintsUsed: 25
+  }, 
+  onClose 
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-xl w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+        <div className="p-8">
+          <div className="border-b border-gray-200 pb-6">
+            <h2 className="text-3xl font-bold text-gray-900">Interview Results</h2>
+            <p className="mt-2 text-gray-600">Detailed performance breakdown and feedback</p>
+          </div>
+
+          <div className="mt-8 space-y-8">
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold text-gray-900">Performance Metrics</h3>
+              
+              {/* Numerical Scores */}
+              <div className="bg-gray-50 p-6 rounded-lg space-y-4">
+                <ScoreSlider label="Aggregate Score" score={scores.aggregateScore} />
+                <ScoreSlider label="Hints Used" score={100 - scores.hintsUsed} />
+              </div>
+
+              {/* Detailed Feedback Categories */}
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-gray-900">Detailed Feedback</h3>
+                <div className="space-y-6">
+                  <ScoreSlider 
+                    label="Speed" 
+                    score={scores.speed.score} 
+                    feedback={scores.speed.feedback} 
+                  />
+                  <ScoreSlider 
+                    label="Accuracy" 
+                    score={scores.accuracy.score} 
+                    feedback={scores.accuracy.feedback}
+                  />
+                  <ScoreSlider 
+                    label="Problem Solving" 
+                    score={scores.problemSolving.score} 
+                    feedback={scores.problemSolving.feedback}
+                  />
+                  <ScoreSlider 
+                    label="Communication" 
+                    score={scores.communication.score} 
+                    feedback={scores.communication.feedback}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="mt-8 w-full p-4 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
