@@ -9,7 +9,7 @@ import { SetupModal, ScorecardModal } from '../components/Modal.jsx'; // Import 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
-  const [hasEnded, setHasEnded] = useState(true);
+  const [hasEnded, setHasEnded] = useState(false); // should be false
   const [time, setTime] = useState('10 minutes');
   const [difficulty, setDifficulty] = useState('Easy');
   const [score, setScore] = useState(90); // should be -1
@@ -115,8 +115,8 @@ export default function App() {
         </div>
         : 
         <div>
-        <MediaAction track={getLocalAudioTrack()} On={Mic} Off={MicOff}/>
-        <CodeIDE dataChannel={dataChannel} setHasEnded={setHasEnded} timeLimit={time} setScore={setScore} setFeedback={setFeedback}/>
+        {/* <MediaAction track={getLocalAudioTrack()} On={Mic} Off={MicOff}/> */}
+        <CodeIDE track={getLocalAudioTrack()} dataChannel={dataChannel} setHasEnded={setHasEnded} timeLimit={time} setScore={setScore} setFeedback={setFeedback}/>
         {getRemoteAudioTrack() && 
           <RealtimeAudio track={getRemoteAudioTrack()} />
         }
