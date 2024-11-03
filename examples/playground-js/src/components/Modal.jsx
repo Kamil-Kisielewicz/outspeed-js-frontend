@@ -203,12 +203,6 @@ export const ScorecardModal = ({
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="mt-8 w-full p-4 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>
