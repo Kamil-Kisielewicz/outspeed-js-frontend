@@ -18,7 +18,7 @@ export default function App() {
 
   const { toast } = useRealtimeToast();
   const config = createConfig({
-    functionURL: "http://0.0.0.0:8081",
+    functionURL: "http://0.0.0.0:8080",
   });
 
   const { 

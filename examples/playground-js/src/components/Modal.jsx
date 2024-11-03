@@ -144,12 +144,12 @@ export const ScoreSlider = ({ score, label, feedback = null }) => {
 export const ScorecardModal = ({ 
   isOpen, 
   scores = {
-    speed: { score: 85, feedback: "Excellent pace throughout the interview. Completed all tasks within time constraints." },
-    accuracy: { score: 78, feedback: "Good attention to detail with minor oversights in edge cases." },
-    problemSolving: { score: 92, feedback: "Outstanding analytical skills and systematic approach to breaking down problems." },
-    communication: { score: 88, feedback: "Clear articulation of thought process and good engagement throughout." },
-    aggregateScore: 86,
-    hintsUsed: 25
+    speed: { score: 95, feedback: "Excellent pace throughout the interview. Completed all tasks within time constraints." },
+    accuracy: { score: 100, feedback: "Good attention to detail, handles all cases." },
+    problemSolving: { score: 92, feedback: "Outstanding analytical skills and systematic approach to breaking down problems. Required 2 hints to acheive the optimal solution." },
+    communication: { score: 90, feedback: "Clear articulation of thought process and good engagement throughout." },
+    aggregateScore: 92,
+    hintsUsed: 50
   }, 
   onClose 
 }) => {
