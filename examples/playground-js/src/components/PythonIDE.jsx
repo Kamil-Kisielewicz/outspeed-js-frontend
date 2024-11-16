@@ -4,9 +4,12 @@ import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-tomorrow.css';
 import { Mic, MicOff } from "lucide-react";
 import { MediaAction } from '../components/meeting-layout/media-action.tsx';
+import { auth } from '../components/Firebase.jsx'; // From the previous AuthPage setup
+import { signOut } from 'firebase/auth'; // Add this import
+import { useNavigate } from 'react-router-dom'; // Add this import
 
 export function CodeIDE(props) {
-  const { track, dataChannel, setHasEnded, setScore, setFeedback } = props;
+  const { track, dataChannel, setHasEnded, setScore, setFeedback, isMicEnabled, setIsMicEnabled } = props;
   const [code, setCode] = useState('# Write your Python code here\nprint("Hello, World!")');
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState('python');
@@ -15,6 +18,17 @@ export function CodeIDE(props) {
   const lineNumbersRef = useRef(null);
   const editorWrapperRef = useRef(null);
   const [scrollTop, setScrollTop] = useState(0);
+  const navigate = useNavigate(); // Add this hook
+
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/auth');
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   useEffect(() => {
     highlightCode();
@@ -106,7 +120,7 @@ export function CodeIDE(props) {
   };
 
   const handleRunCode = () => {
-    dataChannel.send(`Please evaluate the candidate's ${language} code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`);
+    // dataChannel.send(`Please evaluate the candidate's ${language} code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`);
     executeCode();
   };
 
@@ -123,6 +137,20 @@ export function CodeIDE(props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#F7FAFC', padding: '16px', gap: '8px' }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <button
+          style={{
+            backgroundColor: '#4A5568', // Different color from Finish Interview
+            color: 'white',
+            fontWeight: 'bold',
+            padding: '8px 16px',
+            borderRadius: '4px',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
         <button
           style={{
             backgroundColor: '#E53E3E',
@@ -265,7 +293,7 @@ export function CodeIDE(props) {
             >
               Run Code
             </button>
-            <MediaAction track={track} On={Mic} Off={MicOff} />
+            <MediaAction track={track} On={Mic} Off={MicOff} isEnabled={isMicEnabled} setIsEnabled={setIsMicEnabled}/>
           </div>
           <textarea
             style={{

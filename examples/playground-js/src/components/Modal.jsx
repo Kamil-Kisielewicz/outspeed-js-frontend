@@ -68,7 +68,6 @@ export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficu
               <option value="Easy">Easy</option>
               <option value="Medium">Medium</option>
               <option value="Hard">Hard</option>
-              <option value="Random">Random</option>
             </select>
           </div>
         </div>

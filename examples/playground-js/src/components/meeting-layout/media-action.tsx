@@ -11,11 +11,12 @@ export type TMediaActionProps = {
   Off: React.ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
   >;
+  isEnabled: boolean;
+  setIsEnabled: Function;
 };
 
 export function MediaAction(props: TMediaActionProps) {
-  const { track, On, Off } = props;
-  const [isEnabled, setIsEnabled] = React.useState(true);
+  const { track, On, Off, isEnabled, setIsEnabled } = props;
 
   function handleOnToggle() {
     if (!track) return;
@@ -26,7 +27,7 @@ export function MediaAction(props: TMediaActionProps) {
       track.pause();
     }
 
-    setIsEnabled((prevState) => !prevState);
+    setIsEnabled((prevState: boolean) => !prevState);
   }
 
   return (

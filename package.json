@@ -17,6 +17,8 @@
   },
   "homepage": "https://outspeed.com",
   "dependencies": {
-    "prismjs": "^1.29.0"
+    "firebase": "^11.0.2",
+    "prismjs": "^1.29.0",
+    "react-router-dom": "^6.28.0"
   }
 }
