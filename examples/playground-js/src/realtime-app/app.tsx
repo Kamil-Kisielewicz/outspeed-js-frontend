@@ -63,34 +63,36 @@ function MainApp() {
   }, []);
 
   React.useEffect(() => {
-    switch (connectionStatus) {
-      case "SetupCompleted":
-        connect();
-        break;
-      case "Disconnected":
-        break;
+    if (hasStarted){
+      switch (connectionStatus) {
+        case "SetupCompleted":
+          connect();
+          break;
+        case "Disconnected":
+          break;
+      }
+      if (dataChannel) {
+        dataChannel.addEventListener("message", onMessage);
+        dataChannel.addEventListener("open", () => {
+          console.log("Data channel opened");
+        });
+        return () => {
+          dataChannel.removeEventListener("message", onMessage);
+        };
+      }
+      else {
+        console.log(connectionStatus, dataChannel)
+      }
+  
+      if (connectionStatus === "Failed") {
+        toast({
+          title: "Connection Status",
+          description: "Failed to connect.",
+          variant: "destructive",
+        });
+      }
     }
-    if (dataChannel) {
-      dataChannel.addEventListener("message", onMessage);
-      dataChannel.addEventListener("open", () => {
-        console.log("Data channel opened");
-      });
-      return () => {
-        dataChannel.removeEventListener("message", onMessage);
-      };
-    }
-    else {
-      console.log(connectionStatus, dataChannel)
-    }
-
-    if (connectionStatus === "Failed") {
-      toast({
-        title: "Connection Status",
-        description: "Failed to connect.",
-        variant: "destructive",
-      });
-    }
-  }, [connectionStatus, connect, dataChannel]);
+  }, [connectionStatus, connect, dataChannel, hasStarted]);
 
   // New useEffect to send config after starting
   React.useEffect(() => {
