@@ -14,6 +14,11 @@ export function CodeIDE(props) {
   const [code, setCode] = useState('# Write your Python code here\nprint("Hello, World!")');
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState('python');
+  const [lastExecutionTime, setLastExecutionTime] = useState(0);
+  const [isExecutionBlocked, setIsExecutionBlocked] = useState(false);
+  const [executionCooldown, setExecutionCooldown] = useState(0);
+  const executionCooldownRef = useRef(null);
+  const EXECUTION_DELAY = 3000; // 3 seconds between executions
   const editorRef = useRef(null);
   const textareaRef = useRef(null);
   const lineNumbersRef = useRef(null);
@@ -45,6 +50,9 @@ export function CodeIDE(props) {
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
+      }
+      if (executionCooldownRef.current) {
+        clearInterval(executionCooldownRef.current);
       }
     };
   }, [setIsMicEnabled, setHasEnded]);
@@ -154,9 +162,34 @@ export function CodeIDE(props) {
     }
   };
 
+  const startExecutionCooldown = () => {
+    setIsExecutionBlocked(true);
+    setExecutionCooldown(EXECUTION_DELAY / 1000);
+    
+    executionCooldownRef.current = setInterval(() => {
+      setExecutionCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(executionCooldownRef.current);
+          setIsExecutionBlocked(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const handleRunCode = () => {
+    const now = Date.now();
+    if (now - lastExecutionTime < EXECUTION_DELAY) {
+      if (!isExecutionBlocked) {
+        startExecutionCooldown();
+      }
+      return;
+    }
+    
+    setLastExecutionTime(now);
     executeCode();
-    dataChannel.send(`Please evaluate the candidate's code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`)
+    dataChannel.send(`Please evaluate the candidate's code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`);
   };
 
   const handleLanguageChange = (event) => {
@@ -327,18 +360,20 @@ export function CodeIDE(props) {
             </div>
             <button
               style={{
-                backgroundColor: '#38A169',
+                backgroundColor: isExecutionBlocked ? '#718096' : '#38A169',
                 color: 'white',
                 fontWeight: 'bold',
                 padding: '8px 16px',
                 borderRadius: '4px',
                 border: 'none',
-                cursor: 'pointer',
+                cursor: isExecutionBlocked ? 'not-allowed' : 'pointer',
                 flexGrow: 1,
+                position: 'relative',
               }}
               onClick={handleRunCode}
+              disabled={isExecutionBlocked}
             >
-              Run Code
+              {isExecutionBlocked ? `Wait ${executionCooldown}s` : 'Run Code'}
             </button>
             <MediaAction track={track} On={Mic} Off={MicOff} isEnabled={isMicEnabled} setIsEnabled={setIsMicEnabled}/>
           </div>
@@ -356,7 +391,7 @@ export function CodeIDE(props) {
               outline: 'none',
               boxSizing: 'border-box',
             }}
-            value={output}
+            value={isExecutionBlocked ? `Please wait ${executionCooldown} seconds before running code again...${output ? '\n\nLast output:\n' + output : ''}` : output}
             readOnly
             placeholder="Output will appear here..."
           />
