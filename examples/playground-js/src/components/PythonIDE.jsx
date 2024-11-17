@@ -156,6 +156,7 @@ export function CodeIDE(props) {
 
   const handleRunCode = () => {
     executeCode();
+    dataChannel.send(`Please evaluate the candidate's code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`)
   };
 
   const handleLanguageChange = (event) => {
