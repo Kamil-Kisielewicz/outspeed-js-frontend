@@ -107,7 +107,8 @@ function MainApp() {
           const configMessage = {
             type: "config",
             difficulty: difficulty,
-            sessionId: sessionId
+            sessionId: sessionId,
+            duration: time
           };
           
           const message = JSON.stringify(configMessage);
