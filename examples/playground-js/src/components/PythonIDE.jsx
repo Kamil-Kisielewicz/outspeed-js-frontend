@@ -28,6 +28,13 @@ export function CodeIDE(props) {
       setTimeLeft(prev => {
         if (prev <= 0) {
           clearInterval(timerRef.current);
+          // When timer hits 0, mute mic and end interview
+          if (setIsMicEnabled) {
+            setIsMicEnabled(false);
+          }
+          if (setHasEnded) {
+            setHasEnded(true);
+          }
           return 0;
         }
         return prev - 1;
@@ -40,7 +47,7 @@ export function CodeIDE(props) {
         clearInterval(timerRef.current);
       }
     };
-  }, []);
+  }, [setIsMicEnabled, setHasEnded]);
 
   // Format time as MM:SS
   const formatTime = (seconds) => {

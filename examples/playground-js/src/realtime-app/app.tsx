@@ -147,7 +147,8 @@ function MainApp() {
     <div>
       {hasEnded ? (
         <div>
-          <ScorecardModal isOpen={score >= 0.0 && feedback} score={score} feedback={feedback}/>
+          {/* TODO @Kamil-Kisielewicz change isOpen to use some flag that the score was retrieved from the back-end successfully */}
+          <ScorecardModal isOpen={true} score={score} feedback={feedback}/> 
         </div>
       ) : (
         <div>
