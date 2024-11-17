@@ -8,6 +8,8 @@ import { SetupModal, ScorecardModal } from '../components/Modal.jsx';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { auth } from '../components/Firebase.jsx'; // From the previous AuthPage setup
 import { onAuthStateChanged, getAuth } from 'firebase/auth';
+import { createSession } from '../components/firebase-session-utils.jsx';
+
 import AuthPage from '../components/AuthPage.jsx';
 
 
@@ -15,7 +17,7 @@ function MainApp() {
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
   const [hasEnded, setHasEnded] = useState(false);
-  const [time, setTime] = useState('10 minutes');
+  const [time, setTime] = useState(10); // Initialize with 10 minutes
   const [difficulty, setDifficulty] = useState('Easy');
   const [score, setScore] = useState(-1);
   const [feedback, setFeedback] = useState('');
@@ -94,21 +96,29 @@ function MainApp() {
   React.useEffect(() => {
     if (hasStarted && dataChannel) {
       console.log('Attempting to send config...');
-      
-      const configMessage = {
-        type: "config",
-        difficulty: difficulty
+      // TODO @Kamil-Kisielewicz this code might cause weird issues if they refresh and we can't pull session for the user; session id needs to be stored in cookie or something
+      const createAndSendSession = async () => {
+        try {
+          console.log('creating a session');
+          const sessionId = await createSession(time);
+          console.log('Session created:', sessionId);
+          const configMessage = {
+            type: "config",
+            difficulty: difficulty,
+            sessionId: sessionId
+          };
+          
+          const message = JSON.stringify(configMessage);
+          console.log('Sending config message:', message);
+          dataChannel.send(message);
+        } catch (error) {
+          console.error('Error in session creation flow or sending config message:', error);
+        }
       };
-      
-      try {
-        const message = JSON.stringify(configMessage);
-        console.log('Sending config message:', message);
-        dataChannel.send(message);
-      } catch (error) {
-        console.error('Error sending config:', error);
-      }
+      console.log('this is being called');
+      createAndSendSession();
     }
-  }, [hasStarted, dataChannel, difficulty]);
+  }, [hasStarted, dataChannel, difficulty, time]);
 
   const handleStart = () => {
     console.log(`Starting session with time: ${time} and difficulty: ${difficulty}`);
@@ -150,6 +160,7 @@ function MainApp() {
             setFeedback={setFeedback}
             isMicEnabled={isMicEnabled}
             setIsEnabled={setIsMicEnabled}
+            duration={time*60}
           />
           {getRemoteAudioTrack() && 
             <RealtimeAudio track={getRemoteAudioTrack()} />

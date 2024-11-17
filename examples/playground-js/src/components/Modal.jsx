@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import TimeSelector from './TimeSelector.jsx';  // Remove the curly braces
 
 // Base Modal Component for shared styling and structure
 const BaseModal = ({ isOpen, children }) => {
@@ -14,9 +15,7 @@ const BaseModal = ({ isOpen, children }) => {
   );
 };
 
-// Setup Modal Component
 export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficulty, setDifficulty, isSetupModalLoading, setIsSetupModalLoading }) => {
-
   const handleStart = async () => {
     setIsSetupModalLoading(true);
     try {
@@ -29,6 +28,12 @@ export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficu
       setIsLoading(false);
     }
   };
+
+  const timeOptions = [
+    { value: 10, label: '10 minutes' },
+    { value: 30, label: '30 minutes' },
+    { value: 45, label: '45 minutes' }
+  ];
 
   return (
     <BaseModal isOpen={isOpen}>
@@ -45,13 +50,13 @@ export const SetupModal = ({ isOpen, onStart, hasStarted, time, setTime, difficu
             </label>
             <select
               value={time}
-              onChange={(e) => setTime(e.target.value)}
+              onChange={(e) => setTime(parseInt(e.target.value, 10))}
               className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               disabled={isSetupModalLoading}
             >
-              <option value="10 minutes">10 minutes</option>
-              <option value="30 minutes">30 minutes</option>
-              <option value="45 minutes">45 minutes</option>
+              {timeOptions.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
             </select>
           </div>
 

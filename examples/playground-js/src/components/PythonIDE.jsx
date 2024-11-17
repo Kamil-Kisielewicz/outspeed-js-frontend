@@ -4,12 +4,13 @@ import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-tomorrow.css';
 import { Mic, MicOff } from "lucide-react";
 import { MediaAction } from '../components/meeting-layout/media-action.tsx';
-import { auth } from '../components/Firebase.jsx'; // From the previous AuthPage setup
-import { signOut } from 'firebase/auth'; // Add this import
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { auth } from '../components/Firebase.jsx';
+import { signOut } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 export function CodeIDE(props) {
-  const { track, dataChannel, setHasEnded, setScore, setFeedback, isMicEnabled, setIsMicEnabled } = props;
+  const { track, dataChannel, setHasEnded, setScore, setFeedback, isMicEnabled, setIsMicEnabled, duration } = props;
+  const [timeLeft, setTimeLeft] = useState(duration);
   const [code, setCode] = useState('# Write your Python code here\nprint("Hello, World!")');
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState('python');
@@ -18,8 +19,35 @@ export function CodeIDE(props) {
   const lineNumbersRef = useRef(null);
   const editorWrapperRef = useRef(null);
   const [scrollTop, setScrollTop] = useState(0);
-  const navigate = useNavigate(); // Add this hook
+  const navigate = useNavigate();
+  const timerRef = useRef(null);
 
+  useEffect(() => {
+    // Start the timer
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 0) {
+          clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Cleanup on component unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
+  // Format time as MM:SS
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   const handleLogout = async () => {
     try {
@@ -120,7 +148,6 @@ export function CodeIDE(props) {
   };
 
   const handleRunCode = () => {
-    // dataChannel.send(`Please evaluate the candidate's ${language} code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`);
     executeCode();
   };
 
@@ -139,7 +166,7 @@ export function CodeIDE(props) {
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button
           style={{
-            backgroundColor: '#4A5568', // Different color from Finish Interview
+            backgroundColor: '#4A5568',
             color: 'white',
             fontWeight: 'bold',
             padding: '8px 16px',
@@ -277,7 +304,19 @@ export function CodeIDE(props) {
           </select>
         </div>
         <div style={{ width: '50%', paddingLeft: '8px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+            <div
+              style={{
+                backgroundColor: timeLeft <= 60 ? '#E53E3E' : '#2D3748',
+                color: 'white',
+                fontWeight: 'bold',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+              }}
+            >
+              {formatTime(timeLeft)}
+            </div>
             <button
               style={{
                 backgroundColor: '#38A169',

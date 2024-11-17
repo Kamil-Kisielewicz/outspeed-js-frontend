@@ -1,60 +1,43 @@
-import { auth } from './Firebase.jsx';
-import { 
-  onAuthStateChanged,
-  getAuth 
-} from 'firebase/auth';
+// In your session creation file:
+import { doc, setDoc, collection } from 'firebase/firestore';
+import { db } from './Firebase.jsx'; // Adjust path as needed
+import { auth } from './Firebase.jsx'; // Add this import
 
-// Utility to generate a random session ID
-const generateSessionId = () => {
-  return 'sess_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-};
-
-// Get current user ID
-export const getCurrentUserId = () => {
-  const auth = getAuth();
-  return auth.currentUser?.uid;
-};
-
-// Get current user email
-export const getCurrentUserEmail = () => {
-  const auth = getAuth();
-  return auth.currentUser?.email;
-};
-
-// Session management class
-export class SessionManager {
-  constructor() {
-    this.sessionId = generateSessionId();
-    this.userId = null;
-    this.startTime = Date.now();
+// Usage:
+// createSession(15);
+export async function createSession(duration) {
+  try {
+    // Get current user
+    const user = auth.currentUser;
     
-    // Set up auth state listener
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        this.userId = user.uid;
-      } else {
-        this.userId = null;
-      }
+    if (!user) {
+      throw new Error('No user is signed in');
+    }
+
+    // Generate a unique key by creating a new doc reference
+    const newRef = doc(collection(db, 'interviews'));
+    const sessionId = newRef.id; // This gets Firebase's auto-generated ID
+
+    // Create the document with the generated ID
+    await setDoc(newRef, {
+      duration: duration,
+      metrics: {
+        communicationFeedback: '',
+        communicationScore: 0,
+        hintsUsed: 0,
+        testCasesPassed: 0,
+        totalTestCases: 0
+      },
+      problemId: '',
+      sessionId: sessionId,
+      status: 'created',
+      userId: user.uid, // Add the user ID here
     });
-  }
-
-  // Get current session info
-  getSessionInfo() {
-    return {
-      sessionId: this.sessionId,
-      userId: this.userId,
-      startTime: this.startTime,
-      userEmail: getCurrentUserEmail(),
-    };
-  }
-
-  // Generate a new session ID while maintaining the same user
-  refreshSession() {
-    this.sessionId = generateSessionId();
-    this.startTime = Date.now();
-    return this.sessionId;
+    
+    console.log('Session created with ID:', sessionId, 'for user:', user.uid);
+    return sessionId;
+  } catch (error) {
+    console.error('Error creating session:', error);
+    throw error;
   }
 }
-
-// Create a singleton instance
-export const sessionManager = new SessionManager();
