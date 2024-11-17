@@ -6,6 +6,7 @@ import {
 } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import logo from '../assets/logo.svg';
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -59,7 +60,8 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="bg-white p-8 rounded-xl shadow-xl w-[480px] max-w-[90vw] space-y-8">
-        <div>
+        <div className="flex flex-col items-center">
+            <img src={logo} alt="Hyperscreen" className="h-16 mb-6" />
           <h2 className="text-2xl font-bold text-gray-900 text-center">
             {isLogin ? 'Welcome back to Hyperscreen' : 'Create your Hyperscreen account'}
           </h2>
