@@ -21,6 +21,8 @@ export async function createSession(duration) {
     // Create the document with the generated ID
     await setDoc(newRef, {
       duration: duration,
+      startTime: '',
+      stopTime: '',
       metrics: {
         communicationFeedback: '',
         communicationScore: 0,
