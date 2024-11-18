@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "pnpm vite",
-    "build": "pnpm tsc -b && pnpm vite build",
+    "build": "pnpm vite build",
+    "type-check": "pnpm tsc -b",
     "lint": "pnpm eslint .",
     "preview": "pnpm vite preview"
   },
