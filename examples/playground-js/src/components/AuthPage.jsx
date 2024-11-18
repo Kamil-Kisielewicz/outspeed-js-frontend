@@ -63,7 +63,7 @@ const AuthPage = () => {
         <div className="flex flex-col items-center">
             <img src={logo} alt="Hyperscreen" className="h-16 mb-6" />
           <h2 className="text-2xl font-bold text-gray-900 text-center">
-            {isLogin ? 'Welcome back to Hyperscreen' : 'Create your Hyperscreen account'}
+            {isLogin ? 'Welcome back' : 'Create your account'}
           </h2>
           <p className="mt-2 text-gray-600 text-center">
             {isLogin 

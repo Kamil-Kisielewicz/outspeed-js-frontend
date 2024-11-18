@@ -20,13 +20,12 @@ export function MediaAction(props: TMediaActionProps) {
 
   function handleOnToggle() {
     if (!track) return;
-
     if (track.isMute()) {
       track.resume();
     } else {
       track.pause();
     }
-
+    // TODO we potentially want to move this up to make not confusing, but regardless local should have backend in dev 
     setIsEnabled((prevState: boolean) => !prevState);
   }
 

@@ -163,7 +163,7 @@ function MainApp() {
             setScore={setScore} 
             setFeedback={setFeedback}
             isMicEnabled={isMicEnabled}
-            setIsEnabled={setIsMicEnabled}
+            setIsMicEnabled={setIsMicEnabled}
             duration={time*60}
           />
           {getRemoteAudioTrack() && 
