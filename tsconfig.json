@@ -18,7 +18,21 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path Aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@styles/*": ["src/styles/*"],
+      "@lib/*": ["src/lib/*"],
+      "@constants/*": ["src/constants/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/react" }
+  ]
 }

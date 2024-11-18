@@ -27,3 +27,6 @@ dist-ssr
 .env.sentry-build-plugin
 
 .env
+dist/
+.DS_Store
+node_modules/

@@ -1,4 +1,4 @@
-import { Button } from "../button";
+import { Button } from "@components/button";
 import React from "react";
 import { Track } from "@outspeed/core";
 import { LucideProps } from "lucide-react";
