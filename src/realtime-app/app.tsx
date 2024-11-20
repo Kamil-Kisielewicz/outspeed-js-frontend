@@ -9,6 +9,8 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import { auth } from '../components/Firebase.jsx'; // From the previous AuthPage setup
 import { onAuthStateChanged, getAuth } from 'firebase/auth';
 import { createSession } from '../components/firebase-session-utils.jsx';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../components/Firebase.jsx';
 
 import AuthPage from '../components/AuthPage.jsx';
 
@@ -23,6 +25,7 @@ function MainApp() {
   const [feedback, setFeedback] = useState('');
   const [isSetupModalLoading, setIsSetupModalLoading] = useState(false);
   const [isMicEnabled, setIsMicEnabled] = React.useState(false);
+  const [sessionId, setSessionId] = useState(null);
 
   const { toast } = useRealtimeToast();
   const config = createConfig({
@@ -102,12 +105,12 @@ function MainApp() {
       const createAndSendSession = async () => {
         try {
           console.log('creating a session');
-          const sessionId = await createSession(time);
-          console.log('Session created:', sessionId);
+          const newSessionId = await createSession(time);
+          setSessionId(newSessionId);
           const configMessage = {
             type: "config",
             difficulty: difficulty,
-            sessionId: sessionId,
+            sessionId: newSessionId,
             duration: time
           };
           
@@ -122,6 +125,25 @@ function MainApp() {
       createAndSendSession();
     }
   }, [hasStarted, dataChannel, difficulty, time]);
+
+  React.useEffect(() => {
+    if (!sessionId) return;
+
+    const interviewRef = doc(db, 'interviews', sessionId);
+    const unsubscribe = onSnapshot(interviewRef, (doc) => {
+      const data = doc.data();
+      if (data?.status === 'completed') {
+        const remoteTrack = getRemoteAudioTrack();
+        if (!remoteTrack || !remoteTrack.isLive || remoteTrack.readyState === 'ended') {
+          setHasEnded(true);
+          setScore(data.score || -1);
+          setFeedback(data.feedback || '');
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [sessionId, getRemoteAudioTrack]);
 
   const handleStart = () => {
     console.log(`Starting session with time: ${time} and difficulty: ${difficulty}`);

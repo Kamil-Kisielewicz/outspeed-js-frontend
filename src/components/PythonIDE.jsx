@@ -189,7 +189,11 @@ export function CodeIDE(props) {
     
     setLastExecutionTime(now);
     executeCode();
-    dataChannel.send(`Please evaluate the candidate's code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`);
+    const message = {
+      type: "speak",
+      content: `Please evaluate the candidate's code, and decide whether to give a hint or be silent and let them debug. Here is the code: \n\n${code}`
+    };
+    dataChannel.send(JSON.stringify(message));
   };
 
   const handleLanguageChange = (event) => {
