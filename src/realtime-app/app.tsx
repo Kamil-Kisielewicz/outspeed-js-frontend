@@ -29,7 +29,7 @@ function MainApp() {
 
   const { toast } = useRealtimeToast();
   const config = createConfig({
-    functionURL: "http://0.0.0.0:8080",
+    functionURL: "https://infra.outspeed.com/run/cb5133b64784c621bc9801e4bf43e8fa",
     dataChannelOptions: {}
   });
 
