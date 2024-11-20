@@ -63,12 +63,14 @@ const AuthPage = () => {
         <div className="flex flex-col items-center">
             <img src={logo} alt="Hyperscreen" className="h-16 mb-6" />
           <h2 className="text-2xl font-bold text-gray-900 text-center">
-            {isLogin ? 'Welcome back' : 'Create your account'}
+            Welcome back
+            {/* {isLogin ? 'Welcome back' : 'Create your account'} */}
           </h2>
           <p className="mt-2 text-gray-600 text-center">
-            {isLogin 
+            Please enter your details to sign in
+            {/* {isLogin 
               ? 'Please enter your details to sign in' 
-              : 'Enter your details to get started'}
+              : 'Enter your details to get started'} */}
           </p>
         </div>
 
@@ -135,24 +137,26 @@ const AuthPage = () => {
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                {isLogin ? 'Signing in...' : 'Creating account...'}
+                Signing in...
+                {/* {isLogin ? 'Signing in...' : 'Creating account...'} */}
               </>
             ) : (
-              isLogin ? 'Sign in' : 'Create account'
+              'Sign in'
+              // isLogin ? 'Sign in' : 'Create account'
             )}
           </button>
         </form>
 
-        <div className="relative">
+        {/* <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-200" />
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="px-2 bg-white text-gray-500">or</span>
           </div>
-        </div>
+        </div> */}
 
-        <div className="text-center">
+        {/* <div className="text-center">
           <button 
             onClick={() => setIsLogin(!isLogin)}
             className="text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
@@ -162,7 +166,7 @@ const AuthPage = () => {
               ? "Don't have an account? Sign up" 
               : "Already have an account? Sign in"}
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
